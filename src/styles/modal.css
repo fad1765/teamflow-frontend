@@ -1,0 +1,174 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 9999;
+}
+
+.confirm-modal {
+  width: min(520px, 92vw);
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2);
+  border: 1px solid #e8edf5;
+  position: relative;
+  max-height: min(88vh, 820px);
+  overflow-y: auto;
+}
+
+.edit-task-modal {
+  width: min(760px, 92vw);
+}
+
+.confirm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.confirm-modal-header h3 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.confirm-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0;
+}
+
+.confirm-modal-close:hover {
+  color: #0f172a;
+}
+
+.confirm-modal-message {
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.edit-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.edit-task-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.edit-task-grid input,
+.edit-task-grid select {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  border: 1px solid #dbe1ea;
+  border-radius: 16px;
+  background: #fff;
+  outline: none;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.edit-task-grid input:focus,
+.edit-task-grid select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.confirm-modal-cancel,
+.confirm-modal-confirm {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.confirm-modal-cancel {
+  background: #eef2f7;
+  color: #334155;
+}
+
+.confirm-modal-confirm {
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #fff;
+}
+
+.confirm-modal-confirm--danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.confirm-modal-cancel:hover,
+.confirm-modal-confirm:hover {
+  opacity: 0.92;
+}
+
+@media (max-width: 768px) {
+  .modal-backdrop {
+    padding: 16px;
+  }
+
+  .confirm-modal {
+    width: 100%;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .confirm-modal-header h3 {
+    font-size: 24px;
+  }
+
+  .edit-task-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .confirm-modal-actions {
+    flex-direction: column;
+  }
+
+  .confirm-modal-cancel,
+  .confirm-modal-confirm {
+    width: 100%;
+  }
+}
+
+.date-picker-input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #dbe1ea;
+  border-radius: 14px;
+  font-size: 14px;
+  background: white;
+  outline: none;
+}
+
+.date-picker-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+}
