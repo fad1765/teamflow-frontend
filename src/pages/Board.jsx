@@ -5,6 +5,8 @@ import KanbanBoard from "../components/KanbanBoard";
 import ConfirmModal from "../components/ConfirmModal";
 import EditTaskModal from "../components/EditTaskModal";
 import Toast from "../components/Toast";
+import ProjectSetupModal from "../components/ProjectSetupModal";
+import InviteMembersModal from "../components/InviteMembersModal";
 import api from "../services/api";
 import useLanguage from "../components/useLanguage";
 import DatePicker from "react-datepicker";
@@ -12,9 +14,13 @@ import { getDateLocaleName, getDateFormat } from "../utils/dateLocale";
 import { toLocalDateTimeString } from "../utils/dateValue";
 import "../styles/board.css";
 
+const PROJECT_TYPE_KEY = "projectType";
+const TEAM_INVITES_KEY = "teamProjectInvites";
+
 export default function Board() {
   const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+  const token = localStorage.getItem("token") || "";
   const { language, toggleLanguage, t } = useLanguage();
 
   const [tasks, setTasks] = useState([]);
@@ -47,6 +53,20 @@ export default function Board() {
     assignee_id: "",
     deadline: "",
     estimated_days: "",
+  });
+
+  const [projectType, setProjectType] = useState(
+    localStorage.getItem(PROJECT_TYPE_KEY) || "",
+  );
+  const [projectSetupModalOpen, setProjectSetupModalOpen] = useState(false);
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [teamInvites, setTeamInvites] = useState(() => {
+    try {
+      const saved = localStorage.getItem(TEAM_INVITES_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   useEffect(() => {
@@ -84,6 +104,17 @@ export default function Board() {
   }, [navigate]);
 
   useEffect(() => {
+    const savedProjectType = localStorage.getItem(PROJECT_TYPE_KEY);
+    if (!savedProjectType) {
+      setProjectSetupModalOpen(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(TEAM_INVITES_KEY, JSON.stringify(teamInvites));
+  }, [teamInvites]);
+
+  useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
@@ -100,6 +131,12 @@ export default function Board() {
       users.find((user) => String(user.id) === String(form.assignee_id)) || null
     );
   }, [users, form.assignee_id]);
+
+  const invitedUsers = useMemo(() => {
+    return users.filter((user) =>
+      teamInvites.some((invite) => invite.email === user.email),
+    );
+  }, [users, teamInvites]);
 
   const showToastMessage = (message, type = "info") => {
     if (toastTimerRef.current) {
@@ -274,6 +311,59 @@ export default function Board() {
     }
   };
 
+  const handleSelectProjectType = (type) => {
+    setProjectType(type);
+    localStorage.setItem(PROJECT_TYPE_KEY, type);
+    setProjectSetupModalOpen(false);
+
+    if (type === "team") {
+      setInviteModalOpen(true);
+      showToastMessage(
+        language === "zh" ? "已切換為團體專案" : "Switched to team project",
+        "success",
+      );
+      return;
+    }
+
+    showToastMessage(
+      language === "zh" ? "已切換為個人專案" : "Switched to personal project",
+      "success",
+    );
+  };
+
+  const handleOpenInviteModal = () => {
+    setInviteModalOpen(true);
+  };
+
+  const handleInviteMembers = (selectedMembers) => {
+    const normalized = selectedMembers.map((member) => ({
+      id: member.id,
+      name: member.name,
+      email: member.email,
+      color: member.color,
+    }));
+
+    setTeamInvites(normalized);
+    setInviteModalOpen(false);
+
+    showToastMessage(
+      language === "zh"
+        ? `已更新成員，共 ${normalized.length} 位`
+        : `Members updated: ${normalized.length}`,
+      "success",
+    );
+  };
+
+  const handleRemoveInvite = (email) => {
+    const nextInvites = teamInvites.filter((member) => member.email !== email);
+    setTeamInvites(nextInvites);
+
+    showToastMessage(
+      language === "zh" ? "已移除成員" : "Member removed",
+      "warning",
+    );
+  };
+
   const logout = () => {
     if (hasUnsavedChanges) {
       const confirmed = window.confirm(t.board.logoutConfirm);
@@ -308,6 +398,22 @@ export default function Board() {
             </div>
           )}
 
+          <div className="project-type-chip">
+            {projectType === "team"
+              ? language === "zh"
+                ? "團體專案"
+                : "Team Project"
+              : language === "zh"
+              ? "個人專案"
+              : "Personal Project"}
+          </div>
+
+          {projectType === "team" && (
+            <button className="invite-btn" onClick={handleOpenInviteModal}>
+              {language === "zh" ? "邀請成員" : "Invite"}
+            </button>
+          )}
+
           {!isEditMode ? (
             <button className="edit-btn" onClick={handleEnterEditMode}>
               {t.common.editBoard}
@@ -328,6 +434,64 @@ export default function Board() {
           </button>
         </div>
       </div>
+
+      {projectType === "team" && (
+        <div className="team-members-panel">
+          <div className="team-members-panel__header">
+            <h3>{language === "zh" ? "專案成員" : "Project Members"}</h3>
+            <button
+              className="team-members-panel__invite"
+              onClick={handleOpenInviteModal}
+            >
+              {language === "zh" ? "管理成員" : "Manage Members"}
+            </button>
+          </div>
+
+          <div className="team-members-list">
+            {currentUser && (
+              <div className="team-member-chip is-owner">
+                <UserAvatar
+                  name={currentUser.name}
+                  color={currentUser.color}
+                  size="sm"
+                />
+                <div className="team-member-chip__text">
+                  <span>{currentUser.name}</span>
+                  <small>{language === "zh" ? "建立者" : "Owner"}</small>
+                </div>
+              </div>
+            )}
+
+            {invitedUsers.length === 0 ? (
+              <div className="team-members-empty">
+                {language === "zh"
+                  ? "目前尚未邀請其他成員"
+                  : "No invited members yet"}
+              </div>
+            ) : (
+              invitedUsers.map((member) => (
+                <div key={member.id} className="team-member-chip">
+                  <UserAvatar
+                    name={member.name}
+                    color={member.color}
+                    size="sm"
+                  />
+                  <div className="team-member-chip__text">
+                    <span>{member.name}</span>
+                    <small>{member.email}</small>
+                  </div>
+                  <button
+                    className="team-member-chip__remove"
+                    onClick={() => handleRemoveInvite(member.email)}
+                  >
+                    {language === "zh" ? "移除" : "Remove"}
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
       {isEditMode && (
         <div className="board-edit-banner">
@@ -462,6 +626,20 @@ export default function Board() {
         />
       )}
 
+      <ProjectSetupModal
+        open={projectSetupModalOpen}
+        onSelect={handleSelectProjectType}
+      />
+
+      <InviteMembersModal
+  key={`${inviteModalOpen}-${teamInvites.map((m) => m.email).join(",")}`}
+  open={inviteModalOpen}
+  users={users.filter((user) => user.id !== currentUser?.id)}
+  selectedMembers={teamInvites}
+  onClose={() => setInviteModalOpen(false)}
+  onSave={handleInviteMembers}
+/>
+
       <ConfirmModal
         open={enterEditModalOpen}
         title={t.board.enterEditModeTitle}
@@ -490,6 +668,8 @@ export default function Board() {
         users={users}
         onClose={handleCloseEditTask}
         onSave={handleUpdateTask}
+        token={token}
+        currentUser={currentUser}
       />
 
       <Toast open={toast.open} message={toast.message} type={toast.type} />

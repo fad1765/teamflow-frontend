@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useLanguage from "../components/useLanguage";
 import "../styles/modal.css";
 import DatePicker from "react-datepicker";
 import { getDateLocaleName, getDateFormat } from "../utils/dateLocale";
 import { toLocalDateTimeString } from "../utils/dateValue";
+import ConfirmModal from "./ConfirmModal";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function formatForDateTimeLocal(value) {
   const date = new Date(value);
@@ -32,12 +35,70 @@ function createInitialForm(task) {
   };
 }
 
-export default function EditTaskModal({ open, task, users, onClose, onSave }) {
+export default function EditTaskModal({
+  open,
+  task,
+  users,
+  onClose,
+  onSave,
+  token,
+  currentUser,
+}) {
   const { t, language } = useLanguage();
 
   const [form, setForm] = useState(() => createInitialForm(task));
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentError, setCommentError] = useState("");
+  const [newComment, setNewComment] = useState("");
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [expandedComments, setExpandedComments] = useState([]);
+const [deleteTargetId, setDeleteTargetId] = useState(null);
+
+  useEffect(() => {
+    if (!open || !task) return;
+
+    setForm(createInitialForm(task));
+    setNewComment("");
+    setEditingId(null);
+    setEditText("");
+  }, [open, task]);
+
+  useEffect(() => {
+    if (!open || !task?.id || !token) return;
+    fetchComments();
+  }, [open, task?.id, token]);
 
   if (!open || !task) return null;
+
+  async function fetchComments() {
+    try {
+      setCommentsLoading(true);
+      setCommentError("");
+
+      const res = await fetch(`${API_BASE_URL}/comments/task/${task.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("取得留言失敗");
+      }
+
+      const data = await res.json();
+      setComments(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error(error);
+      setCommentError("取得留言失敗");
+      setComments([]);
+    } finally {
+      setCommentsLoading(false);
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,23 +125,166 @@ export default function EditTaskModal({ open, task, users, onClose, onSave }) {
     });
   };
 
+  const handleAddComment = async () => {
+    const content = newComment.trim();
+    if (!content || !token) return;
+
+    try {
+      setSubmittingComment(true);
+      setCommentError("");
+
+      const res = await fetch(`${API_BASE_URL}/comments/task/${task.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!res.ok) {
+        throw new Error("新增留言失敗");
+      }
+
+      setNewComment("");
+      await fetchComments();
+    } catch (error) {
+      console.error(error);
+      setCommentError("新增留言失敗");
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleLike = async (commentId) => {
+    if (!token) return;
+
+    try {
+      setActionLoadingId(commentId);
+      setCommentError("");
+
+      const res = await fetch(`${API_BASE_URL}/comments/${commentId}/like`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("按讚失敗");
+      }
+
+      await fetchComments();
+    } catch (error) {
+      console.error(error);
+      setCommentError("按讚失敗");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleStartEdit = (comment) => {
+    setEditingId(comment.id);
+    setEditText(comment.content);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    const content = editText.trim();
+    if (!content || !token) return;
+
+    try {
+      setActionLoadingId(commentId);
+      setCommentError("");
+
+      const res = await fetch(`${API_BASE_URL}/comments/${commentId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ content }),
+      });
+
+      if (!res.ok) {
+        throw new Error("更新留言失敗");
+      }
+
+      setEditingId(null);
+      setEditText("");
+      await fetchComments();
+    } catch (error) {
+      console.error(error);
+      setCommentError("更新留言失敗");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleAskDelete = (commentId) => {
+  setDeleteTargetId(commentId);
+};
+
+const handleConfirmDelete = async () => {
+  if (!token || !deleteTargetId) return;
+
+  try {
+    setActionLoadingId(deleteTargetId);
+    setCommentError("");
+
+    const res = await fetch(`${API_BASE_URL}/comments/${deleteTargetId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("刪除留言失敗");
+    }
+
+    setDeleteTargetId(null);
+    await fetchComments();
+  } catch (error) {
+    console.error(error);
+    setCommentError("刪除留言失敗");
+  } finally {
+    setActionLoadingId(null);
+  }
+};
+
+const handleCancelDelete = () => {
+  setDeleteTargetId(null);
+};
+
+  const handleToggleExpand = (id) => {
+    setExpandedComments((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
-        className="confirm-modal edit-task-modal"
-        onClick={(e) => e.stopPropagation()}
+  className="confirm-modal edit-task-modal"
+  onClick={(e) => e.stopPropagation()}
+>
+  <div className="edit-task-modal-scroll">
+    <div className="confirm-modal-header">
+      <h3>{t.task.editTask}</h3>
+      <button
+        type="button"
+        className="confirm-modal-close"
+        onClick={onClose}
+        aria-label={t.modal.close}
       >
-        <div className="confirm-modal-header">
-          <h3>{t.task.editTask}</h3>
-          <button
-            type="button"
-            className="confirm-modal-close"
-            onClick={onClose}
-            aria-label={t.modal.close}
-          >
-            ×
-          </button>
-        </div>
+        ×
+      </button>
+    </div>
 
         <form className="edit-task-form" onSubmit={handleSubmit}>
           <div className="edit-task-grid">
@@ -124,9 +328,9 @@ export default function EditTaskModal({ open, task, users, onClose, onSave }) {
               onChange={handleChange}
             >
               <option value="">{t.common.unassigned}</option>
-              {users.map((user) => (
-                <option key={user.id} value={String(user.id)}>
-                  {user.name}
+              {users.map((userItem) => (
+                <option key={userItem.id} value={String(userItem.id)}>
+                  {userItem.name}
                 </option>
               ))}
             </select>
@@ -164,6 +368,185 @@ export default function EditTaskModal({ open, task, users, onClose, onSave }) {
             />
           </div>
 
+          <div className="task-comments-section">
+            <div className="task-comments-header">
+              <h4 className="comments-title">Comments</h4>
+              <button
+                type="button"
+                className="comments-refresh-btn"
+                onClick={fetchComments}
+              >
+                {language === "zh" ? "重新整理" : "Refresh"}
+              </button>
+            </div>
+
+            {commentError ? (
+              <p className="comments-error">{commentError}</p>
+            ) : null}
+
+            <div className="comments-list">
+              {commentsLoading ? (
+                <div className="comments-empty">
+                  {language === "zh" ? "留言載入中..." : "Loading comments..."}
+                </div>
+              ) : comments.length === 0 ? (
+                <div className="comments-empty">
+                  {language === "zh" ? "目前還沒有留言" : "No comments yet"}
+                </div>
+              ) : (
+                comments.map((comment) => {
+                  const canEditOrDelete =
+                    currentUser && comment.user_id === currentUser.id;
+
+                  return (
+                    <div key={comment.id} className="comment-item">
+                      <div className="comment-header">
+                        <div className="comment-author-meta">
+                          <div
+                            className="comment-avatar"
+                            style={{
+                              background:
+                                users.find((u) => u.id === comment.user_id)
+                                  ?.color || "#94a3b8",
+                            }}
+                          >
+                            {comment.user_name?.slice(0, 1)?.toUpperCase() ||
+                              "U"}
+                          </div>
+
+                          <div className="comment-author-text">
+                            <span className="comment-user">
+                              {comment.user_name}
+                            </span>
+                            <span className="comment-time">
+                              {new Date(comment.created_at).toLocaleString()}
+                              {comment.updated_at ? (
+                                <span className="comment-edited-tag">
+                                  {" "}
+                                  · {language === "zh" ? "已編輯" : "edited"}
+                                </span>
+                              ) : null}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {editingId === comment.id ? (
+                        <div className="comment-edit-box">
+                          <textarea
+                            className="comment-edit-textarea"
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={3}
+                          />
+                          <div className="comment-edit-actions">
+                            <button
+                              type="button"
+                              className="comment-secondary-btn"
+                              onClick={handleCancelEdit}
+                            >
+                              {language === "zh" ? "取消" : "Cancel"}
+                            </button>
+                            <button
+                              type="button"
+                              className="comment-primary-btn"
+                              onClick={() => handleSaveEdit(comment.id)}
+                              disabled={
+                                actionLoadingId === comment.id ||
+                                !editText.trim()
+                              }
+                            >
+                              {language === "zh" ? "儲存" : "Save"}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="comment-body-row">
+                          <div
+                            className={`comment-content ${
+                              expandedComments.includes(comment.id)
+                                ? "expanded"
+                                : "collapsed"
+                            }`}
+                            onClick={() => handleToggleExpand(comment.id)}
+                          >
+                            {comment.content}
+                          </div>
+
+                          <div className="comment-actions comment-actions--right">
+                            <button
+                              type="button"
+                              className={`comment-action-btn like-btn ${
+                                comment.is_liked ? "is-liked" : ""
+                              }`}
+                              onClick={() => handleLike(comment.id)}
+                              disabled={actionLoadingId === comment.id}
+                            >
+                              <span className="comment-action-icon">❤</span>
+                              <span>{comment.likes_count || 0}</span>
+                            </button>
+
+                            {canEditOrDelete ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="comment-action-btn"
+                                  onClick={() => handleStartEdit(comment)}
+                                  disabled={actionLoadingId === comment.id}
+                                >
+                                  {language === "zh" ? "編輯" : "Edit"}
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="comment-action-btn danger"
+                                  onClick={() => handleAskDelete(comment.id)}
+                                  disabled={actionLoadingId === comment.id}
+                                >
+                                  {language === "zh" ? "刪除" : "Delete"}
+                                </button>
+                              </>
+                            ) : null}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="comment-input-box">
+              <textarea
+                className="comment-textarea"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder={
+                  language === "zh"
+                    ? "寫下目前進度、卡住的地方，或提醒事項..."
+                    : "Write progress, blockers, or reminders..."
+                }
+                rows={3}
+              />
+              <div className="comment-input-actions">
+                <button
+                  type="button"
+                  className="comment-send-btn"
+                  onClick={handleAddComment}
+                  disabled={submittingComment || !newComment.trim()}
+                >
+                  {submittingComment
+                    ? language === "zh"
+                      ? "送出中..."
+                      : "Sending..."
+                    : language === "zh"
+                      ? "送出留言"
+                      : "Send"}
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="confirm-modal-actions">
             <button
               type="button"
@@ -178,6 +561,21 @@ export default function EditTaskModal({ open, task, users, onClose, onSave }) {
           </div>
         </form>
       </div>
+      </div>
+      <ConfirmModal
+  open={deleteTargetId !== null}
+  title={language === "zh" ? "刪除留言" : "Delete Comment"}
+  message={
+    language === "zh"
+      ? "確定要刪除這則留言嗎？刪除後將無法復原。"
+      : "Are you sure you want to delete this comment? This action cannot be undone."
+  }
+  confirmText={language === "zh" ? "刪除" : "Delete"}
+  cancelText={language === "zh" ? "取消" : "Cancel"}
+  onConfirm={handleConfirmDelete}
+  onCancel={handleCancelDelete}
+  danger
+/>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default function ConfirmModal({
 
   return (
     <div className="modal-backdrop" onClick={onCancel}>
-      <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="confirm-modal confirm-modal--sm" onClick={(e) => e.stopPropagation()}>
         <div className="confirm-modal-header">
           <h3>{title}</h3>
           <button
