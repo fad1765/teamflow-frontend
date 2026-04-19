@@ -150,6 +150,7 @@ export default function EditTaskModal({ open, task, users, onClose, onSave }) {
                 }
                 className="date-picker-input"
                 popperPlacement="bottom-start"
+                portalId="root"
               />
             </div>
 
