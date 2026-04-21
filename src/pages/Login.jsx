@@ -57,6 +57,7 @@ export default function Login() {
     setSuccessMessage("");
   };
 
+  // ✅ 修正：登入後導向 /projects
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,7 +71,8 @@ export default function Login() {
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      navigate("/board");
+      // 🔥 這裡是關鍵
+      navigate("/projects");
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.detail || "登入失敗");
@@ -118,9 +120,10 @@ export default function Login() {
         password: registerForm.password,
       });
 
-      setSuccessMessage("註冊成功，請使用新帳號登入");
+      setSuccessMessage("註冊成功，請登入");
       setRegisterForm(initialRegisterForm);
       setMode("login");
+
       setLoginForm((prev) => ({
         ...prev,
         email: registerForm.email.trim(),
@@ -164,6 +167,7 @@ export default function Login() {
               type="email"
               name="email"
               placeholder="Email"
+              autoComplete="email"
               value={loginForm.email}
               onChange={handleLoginChange}
             />
@@ -172,6 +176,7 @@ export default function Login() {
               type="password"
               name="password"
               placeholder="Password"
+              autoComplete="current-password"
               value={loginForm.password}
               onChange={handleLoginChange}
             />
@@ -189,6 +194,7 @@ export default function Login() {
               type="text"
               name="name"
               placeholder="Name"
+              autoComplete="name"
               value={registerForm.name}
               onChange={handleRegisterChange}
             />
@@ -197,6 +203,7 @@ export default function Login() {
               type="email"
               name="email"
               placeholder="Email"
+              autoComplete="email"
               value={registerForm.email}
               onChange={handleRegisterChange}
             />
@@ -205,6 +212,7 @@ export default function Login() {
               type="password"
               name="password"
               placeholder="Password"
+              autoComplete="new-password"
               value={registerForm.password}
               onChange={handleRegisterChange}
             />
@@ -213,6 +221,7 @@ export default function Login() {
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
+              autoComplete="new-password"
               value={registerForm.confirmPassword}
               onChange={handleRegisterChange}
             />

@@ -1,127 +1,175 @@
 # TeamFlow Frontend
 
-TeamFlow Frontend 是 TeamFlow 專案管理系統的前端應用，提供 Kanban 看板操作、任務拖拉排序、任務編輯與多語系功能。
+TeamFlow Frontend 是一套專案管理系統的前端應用，提供類似 Jira / Trello 的 Kanban 看板與團隊協作功能。
 
-## 專案簡介
+---
 
-此專案使用 **React + Vite** 開發，模擬 Jira / Trello 的任務管理介面。
+## 📌 專案簡介
+
+本專案使用 **React + Vite** 開發，支援專案管理、任務拖拉排序、成員協作與多語系切換。
 
 主要目標：
+- 建立直覺的 Kanban 操作體驗
+- 支援多專案與團隊協作
+- 提供 PM 導向的任務管理流程
 
-* 提供直覺 Kanban UI
-* 支援拖拉排序
-* 強化 PM 使用體驗
+---
 
-## 核心功能
+## 🚀 核心功能
 
-* Kanban 看板（Todo / Doing / Done）
-* 任務拖拉排序（dnd-kit）
-* Edit Mode（防誤操作）
-* Save / Cancel 機制
-* 任務新增 / 編輯
-* 截止時間 / 預估天數
-* 使用者指派
-* Toast 提示
-* Modal 彈窗
-* 中英文切換
+### 🔐 使用者系統
+- 註冊 / 登入 / 登出（JWT）
+- localStorage 維持登入狀態
 
-## 技術架構
+---
 
-* React
-* Vite
-* React Router DOM
-* Axios
-* @dnd-kit
-* react-datepicker
-* date-fns
-* Context API
-* CSS3
+### 📁 專案管理（Projects）
+- 建立專案（個人 / 團隊）
+- 專案列表顯示
+- 專案描述（Description）
+- 建立時間顯示
+- 成員數統計
+- 專案刪除
 
+---
 
-## 專案結構
+### 👥 成員與邀請
+- Email 邀請成員
+- 接受 / 拒絕邀請
+- 顯示邀請資訊：
+  - 專案名稱
+  - 邀請人
+  - 邀請信箱
+- 僅顯示該專案成員（資料隔離）
+
+---
+
+### 📋 任務管理（Kanban）
+- Todo / Doing / Done 看板
+- 任務拖拉排序（dnd-kit）
+- 任務新增 / 編輯 / 刪除
+- 任務指派（Assignee）
+- 截止時間（Deadline）
+- 預估天數（Estimate）
+- 完成時間自動記錄
+
+---
+
+### ⚙️ 操作體驗
+- Edit Mode（避免誤操作）
+- Save / Cancel 機制
+- Confirm Modal（統一操作確認）
+- Toast 提示
+
+---
+
+### 🌐 多語系（i18n）
+- 支援中文 / 英文切換
+- UI 文案集中管理
+
+---
+
+## 🧱 技術架構
+
+- React
+- Vite
+- React Router DOM
+- Axios
+- @dnd-kit（拖拉）
+- react-datepicker
+- date-fns
+- Context API
+- CSS3
+
+---
+
+## 📂 專案結構
 
 frontend/
 ├── public/
 ├── src/
-│   ├── components/    # UI 元件
-│   ├── pages/         # 頁面
-│   ├── services/      # API
-│   ├── styles/        # CSS
-│   ├── language/      # 語系
-│   ├── utils/         # 工具
-│   └── main.jsx
+│ ├── components/ # UI 元件
+│ ├── pages/ # 頁面（Projects / Board）
+│ ├── services/ # API 串接
+│ ├── styles/ # CSS
+│ ├── language/ # i18n
+│ ├── utils/ # 工具
+│ └── main.jsx
 ├── package.json
 └── README.md
 
+---
 
-## 設計亮點
+## ✨ 設計亮點
+
+### 🔹 專案導向架構
+所有資料（任務 / 成員 / 邀請）皆以 Project 為核心隔離
+
+---
+
+### 🔹 拖拉排序（Kanban）
+透過 dnd-kit 實作拖拉並與後端同步 position
+
+---
 
 ### 🔹 Edit Mode
+避免誤拖動，提高使用安全性
 
-只有進入編輯模式才能拖拉，避免誤操作
+---
 
-### 🔹 Save / Cancel
+### 🔹 Confirm Modal 統一
+所有關鍵操作（刪除 / 邀請 / 加入）統一 UX
 
-拖拉後不立即存 DB，點 Save 才送 API
+---
 
-### 🔹 position 排序
+### 🔹 多語系設計
+支援中英文切換，並集中管理語系
 
-與後端同步排序邏輯，確保一致性
+---
 
-### 🔹 多語系（i18n）
+## ⚙️ 安裝與執行
 
-支援：
-* 中文
-* 英文
-
-### 🔹 DatePicker 整合
-
-使用 react-datepicker + date-fns
-
-
-## 使用流程
-
-1. 登入
-2. 取得 token
-3. 載入任務
-4. 拖拉 / 編輯
-5. Save 同步後端
-
-## 安裝與執行
-
-### 1️安裝套件
+### 安裝
 
 npm install
 
-### 2啟動
+### 啟動
 
 npm run dev
 
-### 3本機網址
+### 本機網址
 
 http://localhost:5173
 
-## 套件
+---
 
-npm install axios react-router-dom @dnd-kit/core @dnd-kit/sortable react-datepicker date-fns
+## 🔌 API 串接
 
-## API 串接
+- `/auth`
+- `/users`
+- `/projects`
+- `/invitations`
+- `/tasks`
 
-* `/auth`
-* `/users`
-* `/tasks`
-* `/tasks/reorder`
+---
 
-## 多語系
+## 🐳 Docker 部署
 
-位置：
+### 啟動
 
-src/language/
+docker compose up --build
 
-## 未來擴充
+### 服務
+- Frontend：http://localhost:5173
+- Backend：http://localhost:8000
 
-* Timeline（專案時程）
-* Dashboard
-* 留言系統
-* Docker
-* 部署（Vercel / Railway）
+---
+
+## 🔮 未來擴充
+
+- Timeline（專案時程 / Gantt）
+- Dashboard（PM 視角）
+- 任務延遲分析
+- 通知系統
+- WebSocket 即時更新
+- 雲端部署（Vercel / Railway）

@@ -1,0 +1,390 @@
+.projects-page {
+  min-height: 100vh;
+  background: #f7f8fc;
+  padding: 28px;
+  box-sizing: border-box;
+}
+
+.projects-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.projects-topbar h1 {
+  margin: 0 0 8px;
+  font-size: 42px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.projects-topbar p {
+  margin: 0;
+  color: #64748b;
+}
+
+.projects-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.projects-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 999px;
+  padding: 8px 12px;
+}
+
+.projects-create-btn,
+.projects-logout-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.projects-create-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+
+.projects-logout-btn {
+  background: #111827;
+  color: #fff;
+}
+
+.projects-content {
+  margin-top: 16px;
+}
+
+.projects-state {
+  color: #475569;
+}
+
+.projects-state--error {
+  color: #dc2626;
+}
+
+.projects-empty {
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 24px;
+  padding: 32px;
+  text-align: center;
+}
+
+.projects-empty h3 {
+  margin: 0 0 10px;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.projects-empty p {
+  margin: 0 0 18px;
+  color: #64748b;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.project-card {
+  border: 1px solid #e8edf5;
+  border-radius: 24px;
+  padding: 22px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.project-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.project-card-header h3 {
+  margin: 0;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.project-type-badge {
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.project-type-badge.personal {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.project-type-badge.team {
+  background: #ecfeff;
+  color: #0f766e;
+}
+
+.project-card-meta {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.projects-section {
+  margin-bottom: 28px;
+}
+
+.projects-section-header {
+  margin-bottom: 14px;
+}
+
+.projects-section-header h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  color: #0f172a;
+}
+
+.projects-section-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.projects-invitations {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.project-invitation-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #e8edf5;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
+}
+
+.project-invitation-card__content h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.project-invitation-card__content p {
+  margin: 0 0 6px;
+  color: #334155;
+}
+
+.project-invitation-card__content small {
+  color: #64748b;
+}
+
+.project-invitation-card__actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.invitation-accept-btn,
+.invitation-decline-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.invitation-accept-btn {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #fff;
+}
+
+.invitation-decline-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.invitation-accept-btn:disabled,
+.invitation-decline-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .projects-page {
+    padding: 18px;
+  }
+
+  .projects-topbar {
+    flex-direction: column;
+  }
+
+  .projects-topbar h1 {
+    font-size: 34px;
+  }
+
+  .projects-topbar-right {
+    width: 100%;
+  }
+
+  .projects-user-chip,
+  .projects-create-btn,
+  .projects-logout-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .project-invitation-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .project-invitation-card__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .invitation-accept-btn,
+  .invitation-decline-btn {
+    width: 100%;
+  }
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 420px));
+  gap: 18px;
+  justify-content: start;
+}
+
+.project-card {
+  border: 1px solid #e8edf5;
+  border-radius: 24px;
+  padding: 22px;
+  background: #fff;
+  text-align: left;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.project-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.project-card-header h3 {
+  margin: 0;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.project-card-meta {
+  margin: 0 0 18px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.project-card-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.project-enter-btn,
+.project-delete-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 11px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.project-enter-btn {
+  background: linear-gradient(135deg, #111827, #1f2937);
+  color: #fff;
+}
+
+.project-delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card {
+    min-height: auto;
+  }
+
+  .project-card-actions {
+    flex-direction: column;
+  }
+
+  .project-enter-btn,
+  .project-delete-btn {
+    width: 100%;
+  }
+}
+
+.projects-language-btn {
+  border: 1px solid #dbe1ea;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.project-card-description {
+  margin: 0 0 14px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 44px;
+}
+
+.project-card-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+  color: #64748b;
+  font-size: 13px;
+}

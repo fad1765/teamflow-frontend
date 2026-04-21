@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import Projects from "./pages/Projects";
 import Board from "./pages/Board";
 
 function ProtectedRoute({ children }) {
@@ -17,14 +18,26 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+
         <Route
-          path="/board"
+          path="/projects"
+          element={
+            <ProtectedRoute>
+              <Projects />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/board/:projectId"
           element={
             <ProtectedRoute>
               <Board />
             </ProtectedRoute>
           }
         />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
