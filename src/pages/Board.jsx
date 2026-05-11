@@ -1,26 +1,52 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import UserAvatar from "../components/UserAvatar";
 import KanbanBoard from "../components/KanbanBoard";
 import ConfirmModal from "../components/ConfirmModal";
 import EditTaskModal from "../components/EditTaskModal";
 import InviteMembersModal from "../components/InviteMembersModal";
-import Toast from "../components/Toast";
+import { useToast } from "../context/ToastContext";
 import api from "../services/api";
 import useLanguage from "../components/useLanguage";
 import DatePicker from "react-datepicker";
 import { getDateLocaleName, getDateFormat } from "../utils/dateLocale";
 import { toLocalDateTimeString } from "../utils/dateValue";
 import "../styles/board.css";
+import ProjectTimeline from "../components/ProjectTimeline.jsx";
+import "../styles/timeline.css";
+
+function getNowLocalDateTime() {
+  return toLocalDateTimeString(new Date());
+}
+
+function BoardSkeleton() {
+  return (
+    <div className="board-skeleton">
+      <div className="board-skeleton-toolbar" />
+
+      <div className="board-skeleton-kanban">
+        {Array.from({ length: 3 }).map((_, columnIndex) => (
+          <div key={columnIndex} className="board-skeleton-column">
+            <div className="board-skeleton-column-header" />
+            <div className="board-skeleton-card" />
+            <div className="board-skeleton-card" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Board() {
   const navigate = useNavigate();
   const { projectId } = useParams();
 
+  const [viewMode, setViewMode] = useState("kanban");
+
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
   const token = localStorage.getItem("token") || "";
   const { language, toggleLanguage } = useLanguage();
-
+const { showToast } = useToast();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
@@ -42,20 +68,13 @@ export default function Board() {
   const [enterEditModalOpen, setEnterEditModalOpen] = useState(false);
   const [cancelEditModalOpen, setCancelEditModalOpen] = useState(false);
 
-  const [toast, setToast] = useState({
-    open: false,
-    message: "",
-    type: "info",
-  });
-
-  const toastTimerRef = useRef(null);
-
   const [form, setForm] = useState({
     title: "",
     description: "",
     status: "todo",
     category: "Frontend",
     assignee_id: "",
+    start_date: getNowLocalDateTime(),
     deadline: "",
     estimated_days: "",
   });
@@ -101,16 +120,6 @@ export default function Board() {
 
     init();
   }, [projectId, navigate]);
-
-  const showToast = (message, type = "info") => {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-
-    setToast({ open: true, message, type });
-
-    toastTimerRef.current = setTimeout(() => {
-      setToast((prev) => ({ ...prev, open: false }));
-    }, 2500);
-  };
 
   const refreshMembers = async () => {
     try {
@@ -161,6 +170,11 @@ export default function Board() {
     );
   }, [members, form.assignee_id]);
 
+  const isTeamProject = project?.type === "team";
+
+  const defaultAssigneeId =
+    form.assignee_id || members[0]?.user_id || currentUser?.id || "";
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -177,7 +191,7 @@ export default function Board() {
       return;
     }
 
-    if (!form.assignee_id) {
+    if (isTeamProject && !form.assignee_id) {
       showToast(
         language === "zh" ? "請選擇指派成員" : "Please choose an assignee",
         "warning",
@@ -191,7 +205,8 @@ export default function Board() {
         description: form.description.trim(),
         status: form.status,
         category: form.category,
-        assignee_id: Number(form.assignee_id),
+        assignee_id: defaultAssigneeId ? Number(defaultAssigneeId) : null,
+        start_date: form.start_date || getNowLocalDateTime(),
         deadline: form.deadline || null,
         estimated_days: form.estimated_days
           ? Number(form.estimated_days)
@@ -210,6 +225,7 @@ export default function Board() {
         description: "",
         status: "todo",
         category: "Frontend",
+        start_date: getNowLocalDateTime(),
         deadline: "",
         estimated_days: "",
       }));
@@ -300,30 +316,41 @@ export default function Board() {
     );
   };
 
-  const handleSaveChanges = async () => {
-    try {
-      const changedTasks = tasks.filter((task) => {
-        const original = originalTasks.find((item) => item.id === task.id);
-        if (!original) return false;
+const handleSaveChanges = async () => {
+  try {
+    const changedOrderTasks = tasks.filter((task) => {
+      const original = originalTasks.find((item) => item.id === task.id);
+      if (!original) return false;
 
-        return (
-          original.status !== task.status || original.position !== task.position
-        );
-      });
+      return (
+        original.status !== task.status || original.position !== task.position
+      );
+    });
 
-      if (changedTasks.length === 0) {
-        setIsEditMode(false);
-        setHasUnsavedChanges(false);
+    const changedTimelineTasks = tasks.filter((task) => {
+      const original = originalTasks.find((item) => item.id === task.id);
+      if (!original) return false;
 
-        showToast(
-          language === "zh" ? "沒有需要儲存的變更" : "No changes to save",
-          "info",
-        );
-        return;
-      }
+      return (
+        String(original.start_date || "") !== String(task.start_date || "") ||
+        String(original.deadline || "") !== String(task.deadline || "")
+      );
+    });
 
+    if (changedOrderTasks.length === 0 && changedTimelineTasks.length === 0) {
+      setIsEditMode(false);
+      setHasUnsavedChanges(false);
+
+      showToast(
+        language === "zh" ? "沒有需要儲存的變更" : "No changes to save",
+        "info",
+      );
+      return;
+    }
+
+    if (changedOrderTasks.length > 0) {
       const payload = {
-        tasks: changedTasks.map((task) => ({
+        tasks: changedOrderTasks.map((task) => ({
           id: Number(task.id),
           status: String(task.status),
           position: Number(task.position),
@@ -331,23 +358,37 @@ export default function Board() {
       };
 
       await api.put("/tasks/reorder", payload);
-
-      setOriginalTasks(tasks);
-      setHasUnsavedChanges(false);
-      setIsEditMode(false);
-
-      showToast(
-        language === "zh" ? "看板變更已儲存" : "Board changes saved",
-        "success",
-      );
-    } catch (err) {
-      console.error(err);
-      showToast(
-        language === "zh" ? "儲存失敗" : "Failed to save changes",
-        "error",
-      );
     }
-  };
+
+    for (const task of changedTimelineTasks) {
+      await api.put(`/tasks/${task.id}`, {
+        start_date: task.start_date || null,
+        deadline: task.deadline || null,
+      });
+    }
+
+    const freshTasksRes = await api.get(`/projects/${projectId}/tasks`);
+    const freshTasks = Array.isArray(freshTasksRes.data)
+      ? freshTasksRes.data
+      : tasks;
+
+    setTasks(freshTasks);
+    setOriginalTasks(freshTasks);
+    setHasUnsavedChanges(false);
+    setIsEditMode(false);
+
+    showToast(
+      language === "zh" ? "變更已儲存" : "Changes saved",
+      "success",
+    );
+  } catch (err) {
+    console.error(err);
+    showToast(
+      language === "zh" ? "儲存失敗" : "Failed to save changes",
+      "error",
+    );
+  }
+};
 
   const handleInviteMembers = (selectedMembers) => {
     if (!selectedMembers || selectedMembers.length === 0) {
@@ -496,11 +537,17 @@ export default function Board() {
 
       <div className="board-toolbar">
         <form className="task-form" onSubmit={handleCreateTask}>
-          <div className="task-form-grid">
+          <div
+            className={
+  isTeamProject
+    ? "task-form-grid team-project-form"
+    : "task-form-grid personal-project-form"
+}
+          >
             <input
               type="text"
               name="title"
-              placeholder="Title"
+              placeholder={language === "zh" ? "任務標題" : "Title"}
               value={form.title}
               onChange={handleChange}
             />
@@ -508,7 +555,7 @@ export default function Board() {
             <input
               type="text"
               name="description"
-              placeholder="Description"
+              placeholder={language === "zh" ? "任務描述" : "Description"}
               value={form.description}
               onChange={handleChange}
             />
@@ -537,23 +584,45 @@ export default function Board() {
               </option>
             </select>
 
-            <select
-              name="assignee_id"
-              value={form.assignee_id}
-              onChange={handleChange}
-            >
-              {members.length === 0 ? (
-                <option value="">
-                  {language === "zh" ? "尚無專案成員" : "No project members"}
-                </option>
-              ) : (
-                members.map((member) => (
-                  <option key={member.user_id} value={String(member.user_id)}>
-                    {member.name}
+            {isTeamProject && (
+              <select
+                name="assignee_id"
+                value={form.assignee_id}
+                onChange={handleChange}
+              >
+                {members.length === 0 ? (
+                  <option value="">
+                    {language === "zh" ? "尚無專案成員" : "No project members"}
                   </option>
-                ))
-              )}
-            </select>
+                ) : (
+                  members.map((member) => (
+                    <option key={member.user_id} value={String(member.user_id)}>
+                      {member.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            )}
+
+            <div className="date-picker-field">
+              <DatePicker
+                selected={form.start_date ? new Date(form.start_date) : null}
+                onChange={(date) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    start_date: date ? toLocalDateTimeString(date) : "",
+                  }))
+                }
+                showTimeSelect
+                timeFormat="HH:mm"
+                timeIntervals={15}
+                dateFormat={getDateFormat(language)}
+                locale={getDateLocaleName(language)}
+                placeholderText={language === "zh" ? "開始時間" : "Start date"}
+                className="date-picker-input"
+                popperPlacement="bottom-start"
+              />
+            </div>
 
             <div className="date-picker-field">
               <DatePicker
@@ -569,9 +638,7 @@ export default function Board() {
                 timeIntervals={15}
                 dateFormat={getDateFormat(language)}
                 locale={getDateLocaleName(language)}
-                placeholderText={
-                  language === "zh" ? "選擇日期時間" : "Select date & time"
-                }
+                placeholderText={language === "zh" ? "截止時間" : "Deadline"}
                 className="date-picker-input"
                 popperPlacement="bottom-start"
               />
@@ -592,6 +659,32 @@ export default function Board() {
           </div>
         </form>
 
+        <div className="view-switcher">
+          <button
+            type="button"
+            className={
+              viewMode === "kanban"
+                ? "view-switcher-btn active"
+                : "view-switcher-btn"
+            }
+            onClick={() => setViewMode("kanban")}
+          >
+            {language === "zh" ? "看板視圖" : "Board View"}
+          </button>
+
+          <button
+            type="button"
+            className={
+              viewMode === "timeline"
+                ? "view-switcher-btn active"
+                : "view-switcher-btn"
+            }
+            onClick={() => setViewMode("timeline")}
+          >
+            {language === "zh" ? "時程視圖" : "Timeline View"}
+          </button>
+        </div>
+
         <div className="board-meta">
           <span>
             {language === "zh" ? "成員" : "Members"}: {members.length}
@@ -599,7 +692,7 @@ export default function Board() {
           <span>
             {language === "zh" ? "任務" : "Tasks"}: {tasks.length}
           </span>
-          {selectedAssignee && (
+          {isTeamProject && selectedAssignee && (
             <span className="board-meta-assignee">
               {language === "zh" ? "目前指派人" : "Current Assignee"}:{" "}
               {selectedAssignee.name}
@@ -609,8 +702,8 @@ export default function Board() {
       </div>
 
       {loading ? (
-        <p>{language === "zh" ? "載入中..." : "Loading..."}</p>
-      ) : (
+  <BoardSkeleton />
+) : viewMode === "kanban" ? (
         <KanbanBoard
           tasks={tasks}
           setTasks={setTasks}
@@ -619,6 +712,25 @@ export default function Board() {
           showToastMessage={showToast}
           onTaskClick={handleOpenEditTask}
         />
+      ) : (
+        <ProjectTimeline
+  tasks={tasks}
+  members={members}
+  language={language}
+  isEditMode={isEditMode}
+  onTaskClick={handleOpenEditTask}
+  onPreviewTaskChange={(taskId, payload) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        Number(task.id) === Number(taskId)
+          ? { ...task, ...payload }
+          : task,
+      ),
+    );
+
+    setHasUnsavedChanges(true);
+  }}
+/>
       )}
 
       <InviteMembersModal
@@ -702,8 +814,6 @@ export default function Board() {
         token={token}
         currentUser={currentUser}
       />
-
-      <Toast open={toast.open} message={toast.message} type={toast.type} />
     </div>
   );
 }

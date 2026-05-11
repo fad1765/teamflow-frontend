@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useToast } from "../context/ToastContext";
 import "../styles/login.css";
 
 const initialLoginForm = {
@@ -17,7 +18,7 @@ const initialRegisterForm = {
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const { showToast } = useToast();
   const [mode, setMode] = useState("login");
   const [loginForm, setLoginForm] = useState(initialLoginForm);
   const [registerForm, setRegisterForm] = useState(initialRegisterForm);
@@ -71,11 +72,13 @@ export default function Login() {
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
+      showToast("登入成功", "success");
       // 🔥 這裡是關鍵
       navigate("/projects");
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.detail || "登入失敗");
+      const message = err.response?.data?.detail || "登入失敗";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }
@@ -121,6 +124,7 @@ export default function Login() {
       });
 
       setSuccessMessage("註冊成功，請登入");
+      showToast("註冊成功，請登入", "success");
       setRegisterForm(initialRegisterForm);
       setMode("login");
 
@@ -129,8 +133,9 @@ export default function Login() {
         email: registerForm.email.trim(),
       }));
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.detail || "註冊失敗");
+      const message = err.response?.data?.detail || "註冊失敗";
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }

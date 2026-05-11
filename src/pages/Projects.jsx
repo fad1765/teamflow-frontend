@@ -5,25 +5,26 @@ import CreateProjectModal from "../components/CreateProjectModal";
 import UserAvatar from "../components/UserAvatar";
 import ConfirmModal from "../components/ConfirmModal";
 import useLanguage from "../components/useLanguage";
+import WelcomeOnboarding from "../components/WelcomeOnboarding";
+import { useToast } from "../context/ToastContext";
 import "../styles/projects.css";
 
 export default function Projects() {
   const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
   const { language, toggleLanguage } = useLanguage();
-
+  const { showToast } = useToast();
   const [projects, setProjects] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  const [createType, setCreateType] = useState("personal");
   const [error, setError] = useState("");
   const [inviteActionLoadingId, setInviteActionLoadingId] = useState(null);
 
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [acceptTarget, setAcceptTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const [checkedFirstTime, setCheckedFirstTime] = useState(false);
 
   const fetchProjectsPage = async () => {
     try {
@@ -43,11 +44,6 @@ export default function Projects() {
       setInvitations(
         Array.isArray(invitationsRes.data) ? invitationsRes.data : [],
       );
-
-      if (!checkedFirstTime && projectList.length === 0) {
-        setCreateOpen(true);
-        setCheckedFirstTime(true);
-      }
     } catch (err) {
       console.error(err);
       setError(
@@ -64,6 +60,11 @@ export default function Projects() {
     fetchProjectsPage();
   }, []);
 
+  const openCreateModal = (type = "personal") => {
+    setCreateType(type);
+    setCreateOpen(true);
+  };
+
   const handleCreateProject = async (payload) => {
     try {
       const res = await api.post("/projects", payload);
@@ -71,6 +72,11 @@ export default function Projects() {
 
       setProjects((prev) => [newProject, ...prev]);
       setCreateOpen(false);
+
+      showToast(
+        language === "zh" ? "專案建立成功" : "Project created",
+        "success",
+      );
 
       navigate(`/board/${newProject.id}`);
     } catch (err) {
@@ -106,6 +112,8 @@ export default function Projects() {
       const targetProjectId = acceptTarget.project_id;
       setAcceptTarget(null);
 
+      showToast(language === "zh" ? "已加入專案" : "Joined project", "success");
+
       navigate(`/board/${targetProjectId}`);
     } catch (err) {
       console.error(err);
@@ -123,7 +131,10 @@ export default function Projects() {
       setInviteActionLoadingId(invitationId);
 
       await api.post(`/invitations/${invitationId}/decline`);
-
+      showToast(
+        language === "zh" ? "已拒絕邀請" : "Invitation declined",
+        "info",
+      );
       setInvitations((prev) => prev.filter((item) => item.id !== invitationId));
     } catch (err) {
       console.error(err);
@@ -144,6 +155,11 @@ export default function Projects() {
 
       setProjects((prev) =>
         prev.filter((project) => project.id !== deleteTarget.id),
+      );
+
+      showToast(
+        language === "zh" ? "專案已刪除" : "Project deleted",
+        "warning",
       );
 
       setDeleteTarget(null);
@@ -187,7 +203,7 @@ export default function Projects() {
           <button
             type="button"
             className="projects-create-btn"
-            onClick={() => setCreateOpen(true)}
+            onClick={() => openCreateModal("personal")}
           >
             {language === "zh" ? "建立專案" : "Create Project"}
           </button>
@@ -204,9 +220,21 @@ export default function Projects() {
 
       <div className="projects-content">
         {loading ? (
-          <p className="projects-state">
-            {language === "zh" ? "載入中..." : "Loading..."}
-          </p>
+          <div className="projects-skeleton-grid">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="project-skeleton-card">
+                <div className="project-skeleton-header" />
+                <div className="project-skeleton-line short" />
+                <div className="project-skeleton-line" />
+                <div className="project-skeleton-line" />
+
+                <div className="project-skeleton-footer">
+                  <div className="project-skeleton-btn" />
+                  <div className="project-skeleton-btn" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <>
             {error && (
@@ -288,25 +316,10 @@ export default function Projects() {
               </div>
 
               {projects.length === 0 ? (
-                <div className="projects-empty">
-                  <h3>
-                    {language === "zh" ? "目前還沒有專案" : "No projects yet"}
-                  </h3>
-                  <p>
-                    {language === "zh"
-                      ? "先建立你的第一個個人或團體專案。"
-                      : "Create your first personal or team project."}
-                  </p>
-                  <button
-                    type="button"
-                    className="projects-create-btn"
-                    onClick={() => setCreateOpen(true)}
-                  >
-                    {language === "zh"
-                      ? "建立第一個專案"
-                      : "Create your first project"}
-                  </button>
-                </div>
+                <WelcomeOnboarding
+                  onCreatePersonal={() => openCreateModal("personal")}
+                  onCreateTeam={() => openCreateModal("team")}
+                />
               ) : (
                 <div className="projects-grid">
                   {projects.map((project) => {
@@ -390,6 +403,7 @@ export default function Projects() {
 
       <CreateProjectModal
         open={createOpen}
+        initialType={createType}
         onClose={() => setCreateOpen(false)}
         onCreate={handleCreateProject}
       />

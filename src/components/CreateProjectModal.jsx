@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useLanguage from "../components/useLanguage";
 import "../styles/createProjectModal.css";
 
@@ -8,12 +8,28 @@ const initialForm = {
   type: "personal",
 };
 
-export default function CreateProjectModal({ open, onClose, onCreate }) {
+export default function CreateProjectModal({
+  open,
+  onClose,
+  onCreate,
+  initialType = "personal",
+}) {
   const { language } = useLanguage();
 
   const [form, setForm] = useState(initialForm);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setForm({
+      ...initialForm,
+      type: initialType,
+    });
+
+    setError("");
+  }, [open, initialType]);
 
   if (!open) return null;
 
@@ -46,7 +62,10 @@ export default function CreateProjectModal({ open, onClose, onCreate }) {
         type: form.type,
       });
 
-      setForm(initialForm);
+      setForm({
+        ...initialForm,
+        type: initialType,
+      });
       setError("");
     } catch (err) {
       setError(
@@ -59,7 +78,10 @@ export default function CreateProjectModal({ open, onClose, onCreate }) {
   };
 
   const handleClose = () => {
-    setForm(initialForm);
+    setForm({
+      ...initialForm,
+      type: initialType,
+    });
     setError("");
     onClose();
   };

@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import { getDateLocaleName, getDateFormat } from "../utils/dateLocale";
 import { toLocalDateTimeString } from "../utils/dateValue";
 import ConfirmModal from "./ConfirmModal";
+import { useToast } from "../context/ToastContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -30,6 +31,7 @@ function createInitialForm(task) {
     status: task?.status || "todo",
     category: task?.category || "Frontend",
     assignee_id: task?.assignee_id ? String(task.assignee_id) : "",
+    start_date: task?.start_date ? formatForDateTimeLocal(task.start_date) : "",
     deadline: task?.deadline ? formatForDateTimeLocal(task.deadline) : "",
     estimated_days: task?.estimated_days ? String(task.estimated_days) : "",
   };
@@ -45,7 +47,7 @@ export default function EditTaskModal({
   currentUser,
 }) {
   const { t, language } = useLanguage();
-
+  const { showToast } = useToast();
   const [form, setForm] = useState(() => createInitialForm(task));
   const [comments, setComments] = useState([]);
   const [commentsLoading, setCommentsLoading] = useState(false);
@@ -128,6 +130,7 @@ export default function EditTaskModal({
       status: form.status,
       category: form.category,
       assignee_id: form.assignee_id ? Number(form.assignee_id) : null,
+      start_date: form.start_date || null,
       deadline: form.deadline || null,
       estimated_days: form.estimated_days ? Number(form.estimated_days) : null,
     });
@@ -156,9 +159,14 @@ export default function EditTaskModal({
 
       setNewComment("");
       await fetchComments();
+
+      showToast(language === "zh" ? "留言已送出" : "Comment added", "success");
     } catch (error) {
       console.error(error);
-      setCommentError("新增留言失敗");
+      showToast(
+        language === "zh" ? "新增留言失敗" : "Failed to add comment",
+        "error",
+      );
     } finally {
       setSubmittingComment(false);
     }
@@ -181,11 +189,12 @@ export default function EditTaskModal({
       if (!res.ok) {
         throw new Error("按讚失敗");
       }
-
       await fetchComments();
+
+      showToast(language === "zh" ? "已按讚" : "Liked", "success");
     } catch (error) {
       console.error(error);
-      setCommentError("按讚失敗");
+      showToast(language === "zh" ? "按讚失敗" : "Failed to like", "error");
     } finally {
       setActionLoadingId(null);
     }
@@ -225,9 +234,17 @@ export default function EditTaskModal({
       setEditingId(null);
       setEditText("");
       await fetchComments();
+
+      showToast(
+        language === "zh" ? "留言已更新" : "Comment updated",
+        "success",
+      );
     } catch (error) {
       console.error(error);
-      setCommentError("更新留言失敗");
+      showToast(
+        language === "zh" ? "更新留言失敗" : "Failed to update comment",
+        "error",
+      );
     } finally {
       setActionLoadingId(null);
     }
@@ -257,9 +274,17 @@ export default function EditTaskModal({
 
       setDeleteTargetId(null);
       await fetchComments();
+
+      showToast(
+        language === "zh" ? "留言已刪除" : "Comment deleted",
+        "warning",
+      );
     } catch (error) {
       console.error(error);
-      setCommentError("刪除留言失敗");
+      showToast(
+        language === "zh" ? "刪除留言失敗" : "Failed to delete comment",
+        "error",
+      );
     } finally {
       setActionLoadingId(null);
     }
@@ -348,6 +373,29 @@ export default function EditTaskModal({
 
               <div className="date-picker-field">
                 <DatePicker
+                  selected={form.start_date ? new Date(form.start_date) : null}
+                  onChange={(date) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      start_date: date ? toLocalDateTimeString(date) : "",
+                    }))
+                  }
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat={getDateFormat(language)}
+                  locale={getDateLocaleName(language)}
+                  placeholderText={
+                    language === "zh" ? "選擇開始日期" : "Select start date"
+                  }
+                  className="date-picker-input"
+                  popperPlacement="bottom-start"
+                  portalId="root"
+                />
+              </div>
+
+              <div className="date-picker-field">
+                <DatePicker
                   selected={form.deadline ? new Date(form.deadline) : null}
                   onChange={(date) =>
                     setForm((prev) => ({
@@ -361,7 +409,7 @@ export default function EditTaskModal({
                   dateFormat={getDateFormat(language)}
                   locale={getDateLocaleName(language)}
                   placeholderText={
-                    language === "zh" ? "選擇日期時間" : "Select date & time"
+                    language === "zh" ? "選擇截止日期" : "Select date & time"
                   }
                   className="date-picker-input"
                   popperPlacement="bottom-start"
