@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
+import useLanguage from "../components/useLanguage";
 import "../styles/inviteMembersModal.css";
 
 export default function InviteMembersModal({ open, users, onClose, onSave }) {
+  const { language } = useLanguage();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
 
@@ -23,7 +25,7 @@ export default function InviteMembersModal({ open, users, onClose, onSave }) {
     const cleanEmail = email.trim().toLowerCase();
 
     if (!cleanEmail) {
-      setError("請輸入會員 Email");
+      setError(language === "zh" ? "請輸入會員 Email" : "Please enter member email");
       return;
     }
 
@@ -32,7 +34,11 @@ export default function InviteMembersModal({ open, users, onClose, onSave }) {
     );
 
     if (!matchedUser) {
-      setError("查無此會員，或該會員尚未註冊");
+      setError(
+        language === "zh"
+          ? "查無此會員，或該會員尚未註冊"
+          : "Member not found or not registered",
+      );
       return;
     }
 
@@ -52,8 +58,12 @@ export default function InviteMembersModal({ open, users, onClose, onSave }) {
       >
         <div className="invite-members-header">
           <div>
-            <h3>邀請專案成員</h3>
-            <p>請輸入已註冊會員的 Email 進行邀請。</p>
+            <h3>{language === "zh" ? "邀請專案成員" : "Invite Project Members"}</h3>
+            <p>
+              {language === "zh"
+                ? "請輸入已註冊會員的 Email 進行邀請。"
+                : "Enter the email of a registered member to invite them."}
+            </p>
           </div>
 
           <button
@@ -70,7 +80,9 @@ export default function InviteMembersModal({ open, users, onClose, onSave }) {
           <input
             type="email"
             className="invite-search-input"
-            placeholder="請輸入會員 Email"
+            placeholder={
+              language === "zh" ? "請輸入會員 Email" : "Enter member email"
+            }
             autoComplete="email"
             value={email}
             onChange={(e) => {
@@ -87,10 +99,10 @@ export default function InviteMembersModal({ open, users, onClose, onSave }) {
               className="invite-members-cancel"
               onClick={handleClose}
             >
-              取消
+              {language === "zh" ? "取消" : "Cancel"}
             </button>
             <button type="submit" className="invite-members-save">
-              送出邀請
+              {language === "zh" ? "送出邀請" : "Send Invitation"}
             </button>
           </div>
         </form>
