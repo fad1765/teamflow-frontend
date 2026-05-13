@@ -46,7 +46,7 @@ export default function Board() {
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
   const token = localStorage.getItem("token") || "";
   const { language, toggleLanguage } = useLanguage();
-const { showToast } = useToast();
+  const { showToast } = useToast();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
@@ -316,79 +316,76 @@ const { showToast } = useToast();
     );
   };
 
-const handleSaveChanges = async () => {
-  try {
-    const changedOrderTasks = tasks.filter((task) => {
-      const original = originalTasks.find((item) => item.id === task.id);
-      if (!original) return false;
+  const handleSaveChanges = async () => {
+    try {
+      const changedOrderTasks = tasks.filter((task) => {
+        const original = originalTasks.find((item) => item.id === task.id);
+        if (!original) return false;
 
-      return (
-        original.status !== task.status || original.position !== task.position
-      );
-    });
-
-    const changedTimelineTasks = tasks.filter((task) => {
-      const original = originalTasks.find((item) => item.id === task.id);
-      if (!original) return false;
-
-      return (
-        String(original.start_date || "") !== String(task.start_date || "") ||
-        String(original.deadline || "") !== String(task.deadline || "")
-      );
-    });
-
-    if (changedOrderTasks.length === 0 && changedTimelineTasks.length === 0) {
-      setIsEditMode(false);
-      setHasUnsavedChanges(false);
-
-      showToast(
-        language === "zh" ? "沒有需要儲存的變更" : "No changes to save",
-        "info",
-      );
-      return;
-    }
-
-    if (changedOrderTasks.length > 0) {
-      const payload = {
-        tasks: changedOrderTasks.map((task) => ({
-          id: Number(task.id),
-          status: String(task.status),
-          position: Number(task.position),
-        })),
-      };
-
-      await api.put("/tasks/reorder", payload);
-    }
-
-    for (const task of changedTimelineTasks) {
-      await api.put(`/tasks/${task.id}`, {
-        start_date: task.start_date || null,
-        deadline: task.deadline || null,
+        return (
+          original.status !== task.status || original.position !== task.position
+        );
       });
+
+      const changedTimelineTasks = tasks.filter((task) => {
+        const original = originalTasks.find((item) => item.id === task.id);
+        if (!original) return false;
+
+        return (
+          String(original.start_date || "") !== String(task.start_date || "") ||
+          String(original.deadline || "") !== String(task.deadline || "")
+        );
+      });
+
+      if (changedOrderTasks.length === 0 && changedTimelineTasks.length === 0) {
+        setIsEditMode(false);
+        setHasUnsavedChanges(false);
+
+        showToast(
+          language === "zh" ? "沒有需要儲存的變更" : "No changes to save",
+          "info",
+        );
+        return;
+      }
+
+      if (changedOrderTasks.length > 0) {
+        const payload = {
+          tasks: changedOrderTasks.map((task) => ({
+            id: Number(task.id),
+            status: String(task.status),
+            position: Number(task.position),
+          })),
+        };
+
+        await api.put("/tasks/reorder", payload);
+      }
+
+      for (const task of changedTimelineTasks) {
+        await api.put(`/tasks/${task.id}`, {
+          start_date: task.start_date || null,
+          deadline: task.deadline || null,
+        });
+      }
+
+      const freshTasksRes = await api.get(`/projects/${projectId}/tasks`);
+      const freshTasks = Array.isArray(freshTasksRes.data)
+        ? freshTasksRes.data
+        : tasks;
+
+      setTasks(freshTasks);
+      setOriginalTasks(freshTasks);
+      setHasUnsavedChanges(false);
+      setIsEditMode(false);
+
+      showToast(language === "zh" ? "變更已儲存" : "Changes saved", "success");
+    } catch (err) {
+      console.error(err);
+      showToast(
+        language === "zh" ? "儲存失敗" : "Failed to save changes",
+        "error",
+      );
     }
-
-    const freshTasksRes = await api.get(`/projects/${projectId}/tasks`);
-    const freshTasks = Array.isArray(freshTasksRes.data)
-      ? freshTasksRes.data
-      : tasks;
-
-    setTasks(freshTasks);
-    setOriginalTasks(freshTasks);
-    setHasUnsavedChanges(false);
-    setIsEditMode(false);
-
-    showToast(
-      language === "zh" ? "變更已儲存" : "Changes saved",
-      "success",
-    );
-  } catch (err) {
-    console.error(err);
-    showToast(
-      language === "zh" ? "儲存失敗" : "Failed to save changes",
-      "error",
-    );
-  }
-};
+  };
 
   const handleInviteMembers = (selectedMembers) => {
     if (!selectedMembers || selectedMembers.length === 0) {
@@ -535,14 +532,28 @@ const handleSaveChanges = async () => {
         </div>
       </div>
 
+      <div className="project-tabs">
+        <button
+          type="button"
+          className="project-tab"
+          onClick={() => navigate(`/projects/${projectId}/overview`)}
+        >
+          {language === "zh" ? "專案總覽" : "Overview"}
+        </button>
+
+        <button type="button" className="project-tab active">
+          {language === "zh" ? "任務看板" : "Board"}
+        </button>
+      </div>
+
       <div className="board-toolbar">
         <form className="task-form" onSubmit={handleCreateTask}>
           <div
             className={
-  isTeamProject
-    ? "task-form-grid team-project-form"
-    : "task-form-grid personal-project-form"
-}
+              isTeamProject
+                ? "task-form-grid team-project-form"
+                : "task-form-grid personal-project-form"
+            }
           >
             <input
               type="text"
@@ -702,8 +713,8 @@ const handleSaveChanges = async () => {
       </div>
 
       {loading ? (
-  <BoardSkeleton />
-) : viewMode === "kanban" ? (
+        <BoardSkeleton />
+      ) : viewMode === "kanban" ? (
         <KanbanBoard
           tasks={tasks}
           setTasks={setTasks}
@@ -714,23 +725,23 @@ const handleSaveChanges = async () => {
         />
       ) : (
         <ProjectTimeline
-  tasks={tasks}
-  members={members}
-  language={language}
-  isEditMode={isEditMode}
-  onTaskClick={handleOpenEditTask}
-  onPreviewTaskChange={(taskId, payload) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        Number(task.id) === Number(taskId)
-          ? { ...task, ...payload }
-          : task,
-      ),
-    );
+          tasks={tasks}
+          members={members}
+          language={language}
+          isEditMode={isEditMode}
+          onTaskClick={handleOpenEditTask}
+          onPreviewTaskChange={(taskId, payload) => {
+            setTasks((prev) =>
+              prev.map((task) =>
+                Number(task.id) === Number(taskId)
+                  ? { ...task, ...payload }
+                  : task,
+              ),
+            );
 
-    setHasUnsavedChanges(true);
-  }}
-/>
+            setHasUnsavedChanges(true);
+          }}
+        />
       )}
 
       <InviteMembersModal

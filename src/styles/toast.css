@@ -20,7 +20,7 @@
   backdrop-filter: blur(12px);
 
   box-shadow:
-    0 20px 45px rgba(15, 23, 42, 0.16),
+    0 20px 45px rgba(54, 89, 90, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   animation:
@@ -57,19 +57,20 @@
 }
 
 .toast--info {
-  background: linear-gradient(135deg, #334155, #1e293b);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
 }
 
 .toast--success {
-  background: linear-gradient(135deg, #059669, #047857);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
 }
 
 .toast--warning {
-  background: linear-gradient(135deg, #d97706, #b45309);
+  background: linear-gradient(135deg, var(--warning), var(--warning-hover));
+  color: #4b3425;
 }
 
 .toast--error {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  background: linear-gradient(135deg, var(--danger), var(--danger-hover));
 }
 
 @keyframes toast-slide-in {

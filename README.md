@@ -1,145 +1,121 @@
 # TeamFlow Frontend
 
-TeamFlow Frontend 是一套專案管理系統的前端應用，提供 Kanban 看板與團隊協作功能。
+TeamFlow Frontend 是一套專案管理系統的前端應用，支援專案總覽、Kanban、Timeline、團隊邀請與任務留言。
 
 ---
 
-## 專案簡介
+## Live Demo
 
-使用 **React + Vite** 開發，支援專案管理與任務協作，並與後端 API 串接。
+Frontend: https://teamflow-frontend-ekszko8ne-fad1765s-projects.vercel.app/
+Backend API: https://teamflow-backend-kuhz.onrender.com/
+Swagger: https://teamflow-backend-kuhz.onrender.com/docs
+
+※ Backend 部署於 Render free tier，首次請求可能需等待啟動（cold start）
+
+---
+
+## 專案特色
+
+- React + Vite 建立高效 SPA 架構
+- FastAPI API 串接
+- Kanban / Timeline / Dashboard
+- 完整 UX（Toast / Modal / Skeleton）
+- Docker + GitHub Actions
 
 ---
 
 ## 核心功能
 
-### 使用者系統
-- 註冊 / 登入 / 登出（JWT）
-- localStorage 維持登入狀態
+### 使用者
+- JWT 登入驗證
+- localStorage 狀態管理
+- 中英文切換
 
-### 專案管理
-- 建立專案
-- 專案列表
-- 專案描述
-- 成員數統計
-- 專案刪除
+### 專案
+- 個人 / 團隊專案
+- 專案列表 / 描述
+- Overview Dashboard
 
-### 成員與邀請
-- Email 邀請
-- 接受 / 拒絕邀請
-- 顯示邀請資訊
+### Dashboard
+- 完成率
+- 逾期任務
+- 任務統計
+- 成員分配
 
-### 任務管理
-- Kanban（Todo / Doing / Done）
-- 拖拉排序（dnd-kit）
-- 任務新增 / 編輯 / 刪除
-- 任務指派
-- 截止時間 / 預估天數
-
-### 操作體驗
+### Kanban
+- dnd-kit 拖拉
+- position-based ordering
 - Edit Mode
-- Save / Cancel
-- Confirm Modal
-- Toast 提示
 
-### 多語系
-- 中文 / 英文切換
+### Timeline
+- 週視圖
+- 任務區間顯示
+- 拖拉調整時程
 
----
-
-## 技術架構
-
-- React
-- Vite
-- Axios
-- React Router DOM
-- dnd-kit
-- date-fns
-- Context API
-- CSS3
-- Docker
-- GitHub Actions
+### 協作
+- Email 邀請
+- 留言 / 按讚
 
 ---
 
-## 專案結構
+## 技術
 
-frontend/
-├── public/
-├── src/
-│ ├── components/
-│ ├── pages/
-│ ├── services/
-│ ├── styles/
-│ ├── language/
-│ ├── utils/
-│ └── main.jsx
-├── package.json
-└── README.md
+- React / Vite / Router
+- Axios / Context API
+- dnd-kit / date-fns
+- Docker / GitHub Actions / GHCR
 
 ---
 
 ## 本機開發
 
-
+```bash
 npm install
 npm run dev
+```
 
+## 環境變數
 
----
-
-## CI/CD 與部署
-
-### 🔷 CI（GitHub Actions）
-
-- npm install
-- Vite build
-- Docker build
-
----
-
-### Frontend 部署（Vercel）
-
-
-git push
-↓
-Vercel 自動 build
-↓
-自動部署
-
-
----
-
-### 環境變數
-
-
-VITE_API_BASE_URL=https://your-backend-url
-
-
----
-
-### 系統串接
-
-
-Frontend（Vercel）
-↓
-Backend API（Railway）
-↓
-PostgreSQL
-
-
----
+```env
+VITE_API_BASE_URL=your_backend_url
+```
 
 ## Docker
 
-
+```bash
 docker build -t teamflow-frontend .
+```
 
+## 架構
 
----
+```text
+Vercel Frontend
+      ↓
+Render Backend
+      ↓
+PostgreSQL
+```
 
-## 未來擴充
+## 專案亮點
 
-- Dashboard
-- Timeline（Gantt）
-- WebSocket 即時更新
+- Kanban 拖拉排序（position 設計）
+- Timeline 任務區間視覺化
+- 全域 Toast UX 系統
+- CI/CD 自動化部署
+
+## 畫面展示
+
+### Dashboard
+![dashboard](./screenshots/dashboard.png)
+
+### Kanban
+![kanban](./screenshots/kanban.png)
+
+### Timeline
+![timeline](./screenshots/timeline.png)
+
+## 未來規劃
+
+- WebSocket 即時同步
 - 通知系統
+- PM Dashboard
