@@ -106,13 +106,13 @@ PostgreSQL
 ## 畫面展示
 
 ### Dashboard
-![dashboard](./screenshots/dashboard.png)
+![dashboard](./screenshots/Dashboard.png)
 
 ### Kanban
-![kanban](./screenshots/kanban.png)
+![kanban](./screenshots/Kanban.png)
 
 ### Timeline
-![timeline](./screenshots/timeline.png)
+![timeline](./screenshots/Timeline.png)
 
 ## 未來規劃
 
