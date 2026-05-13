@@ -1,19 +1,21 @@
 .task-card {
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.94);
   padding: 16px;
   border-radius: 18px;
   margin-bottom: 12px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
-  border: 1px solid #edf1f6;
+  box-shadow: 0 10px 24px rgba(54, 89, 90, 0.08);
+  border: 1px solid rgba(215, 205, 173, 0.35);
   cursor: grab;
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .task-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 34px rgba(54, 89, 90, 0.12);
+  border-color: rgba(108, 196, 186, 0.45);
 }
 
 .task-card:active {
@@ -31,9 +33,9 @@
   align-items: center;
   padding: 6px 10px;
   border-radius: 999px;
-  color: white;
+  color: #ffffff;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.01em;
 }
 
@@ -42,90 +44,14 @@
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
+  color: var(--text-main);
 }
 
 .task-card p {
   margin: 0 0 14px;
-  color: #475569;
+  color: var(--text-secondary);
   line-height: 1.5;
   min-height: 40px;
-}
-
-.task-assignee {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f8fafc;
-  padding: 10px 12px;
-  border-radius: 14px;
-}
-
-.task-assignee-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.task-assignee-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.task-assignee-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #334155;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.task-assignee--empty {
-  color: #94a3b8;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.task-assignee-empty-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: #e2e8f0;
-  flex-shrink: 0;
-}
-
-.task-card--editable {
-  cursor: grab;
-}
-
-.task-card--editable:active {
-  cursor: grabbing;
-}
-
-.task-card--dragging {
-  z-index: 10;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-}
-
-.task-card--editable {
-  cursor: grab;
-}
-
-.task-card--editable:active {
-  cursor: grabbing;
-}
-
-.task-card--dragging {
-  z-index: 10;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-}
-
-.task-card--overdue {
-  border: 1px solid #f87171;
 }
 
 .task-meta {
@@ -144,22 +70,87 @@
 }
 
 .task-meta-label {
-  color: #6b7280;
-  font-weight: 600;
+  color: var(--text-secondary);
+  font-weight: 700;
 }
 
 .task-meta-value {
-  color: #111827;
+  color: var(--text-main);
   text-align: right;
   word-break: break-word;
 }
 
 .task-meta-row--overdue .task-meta-value {
-  color: #dc2626;
-  font-weight: 700;
+  color: var(--danger);
+  font-weight: 800;
 }
 
 .task-meta-row--late .task-meta-value {
-  color: #ea580c;
+  color: #b76f35;
+  font-weight: 800;
+}
+
+.task-assignee {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(215, 205, 173, 0.16);
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+.task-assignee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.task-assignee-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.task-assignee-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-assignee--empty {
+  color: var(--text-secondary);
+  font-size: 13px;
   font-weight: 700;
+}
+
+.task-assignee-empty-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(215, 205, 173, 0.5);
+  flex-shrink: 0;
+}
+
+.task-card--editable {
+  cursor: grab;
+}
+
+.task-card--editable:active {
+  cursor: grabbing;
+}
+
+.task-card--dragging {
+  z-index: 10;
+  box-shadow: 0 18px 40px rgba(54, 89, 90, 0.22);
+}
+
+.task-card--overdue {
+  border: 1px solid rgba(215, 101, 90, 0.6);
+  background: rgba(255, 255, 255, 0.96);
 }

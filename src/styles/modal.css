@@ -1,7 +1,7 @@
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.42);
+  background: rgba(54, 89, 90, 0.42);
   backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
@@ -12,11 +12,11 @@
 
 .confirm-modal {
   width: min(520px, 92vw);
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 24px;
   padding: 0;
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2);
-  border: 1px solid #e8edf5;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
   position: relative;
   max-height: min(88vh, 820px);
   overflow: hidden;
@@ -25,11 +25,11 @@
 
 .confirm-modal--sm {
   width: min(420px, 92vw);
-  background: #ffffff;
+  background: var(--bg-card);
   border-radius: 20px;
   padding: 22px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-  border: 1px solid #e8edf5;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
 }
 
 .edit-task-modal {
@@ -49,7 +49,7 @@
   margin: 0;
   font-size: 28px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .confirm-modal-close {
@@ -58,18 +58,18 @@
   font-size: 28px;
   line-height: 1;
   cursor: pointer;
-  color: #64748b;
+  color: var(--text-secondary);
   padding: 0;
   flex-shrink: 0;
 }
 
 .confirm-modal-close:hover {
-  color: #0f172a;
+  color: var(--primary);
 }
 
 .confirm-modal-message {
   margin: 0;
-  color: #475569;
+  color: var(--text-secondary);
   font-size: 15px;
   line-height: 1.6;
 }
@@ -92,25 +92,22 @@
   width: 100%;
   min-height: 52px;
   padding: 12px 14px;
-  border: 1px solid #dbe1ea;
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   background: #fff;
   outline: none;
   font-size: 14px;
   box-sizing: border-box;
+  color: var(--text-main);
 }
 
 .edit-task-grid input:focus,
 .edit-task-grid select:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
-.edit-task-grid .react-datepicker-wrapper {
-  display: block;
-  width: 100%;
-}
-
+.edit-task-grid .react-datepicker-wrapper,
 .edit-task-grid .react-datepicker__input-container {
   display: block;
   width: 100%;
@@ -124,17 +121,18 @@
   width: 100%;
   min-height: 52px;
   padding: 12px 14px;
-  border: 1px solid #dbe1ea;
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   font-size: 14px;
   background: white;
   outline: none;
   box-sizing: border-box;
+  color: var(--text-main);
 }
 
 .date-picker-input:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .react-datepicker-popper {
@@ -142,10 +140,10 @@
 }
 
 .react-datepicker {
-  border: 1px solid #dbe1ea !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 18px !important;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  box-shadow: var(--shadow-lg);
   font-family: inherit;
 }
 
@@ -155,14 +153,14 @@
 
 .react-datepicker__header {
   background: #ffffff !important;
-  border-bottom: 1px solid #eef2f7 !important;
+  border-bottom: 1px solid var(--border-color) !important;
   padding-top: 12px !important;
 }
 
 .react-datepicker__current-month {
   font-size: 15px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .react-datepicker__day-name,
@@ -174,7 +172,7 @@
 }
 
 .react-datepicker__day-name {
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 700;
 }
 
@@ -184,20 +182,20 @@
 
 .react-datepicker__day:hover,
 .react-datepicker__time-list-item:hover {
-  background: #eff6ff !important;
+  background: var(--accent-soft) !important;
 }
 
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected,
 .react-datepicker__time-list-item--selected {
-  background: #2563eb !important;
+  background: var(--primary) !important;
   color: #ffffff !important;
   border-radius: 10px !important;
 }
 
 .react-datepicker__day--today {
   font-weight: 800;
-  color: #1d4ed8;
+  color: var(--primary);
 }
 
 .react-datepicker__navigation {
@@ -205,12 +203,12 @@
 }
 
 .react-datepicker__navigation-icon::before {
-  border-color: #475569 !important;
+  border-color: var(--primary) !important;
   border-width: 2px 2px 0 0 !important;
 }
 
 .react-datepicker__time-container {
-  border-left: 1px solid #eef2f7 !important;
+  border-left: 1px solid var(--border-color) !important;
 }
 
 .react-datepicker__time-box {
@@ -229,7 +227,7 @@
 
 .task-comments-section {
   width: 100%;
-  border-top: 1px solid #e8edf5;
+  border-top: 1px solid var(--border-color);
   padding-top: 18px;
   display: flex;
   flex-direction: column;
@@ -253,13 +251,13 @@
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .comments-refresh-btn {
-  border: 1px solid #dbe1ea;
+  border: 1px solid var(--border-color);
   background: #fff;
-  color: #334155;
+  color: var(--primary);
   border-radius: 12px;
   padding: 8px 12px;
   font-size: 13px;
@@ -270,13 +268,13 @@
 }
 
 .comments-refresh-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--soft-beige-light);
+  border-color: var(--accent);
 }
 
 .comments-error {
   margin: 0;
-  color: #dc2626;
+  color: var(--danger);
   font-size: 13px;
   font-weight: 600;
 }
@@ -298,29 +296,29 @@
 }
 
 .comments-list::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(54, 89, 90, 0.22);
   border-radius: 999px;
 }
 
 .comments-empty {
   width: 100%;
-  border: 1px dashed #dbe1ea;
+  border: 1px dashed var(--border-color);
   border-radius: 16px;
   padding: 18px;
   text-align: center;
-  color: #64748b;
-  background: #f8fafc;
+  color: var(--text-secondary);
+  background: var(--soft-beige-light);
   font-size: 14px;
   box-sizing: border-box;
 }
 
 .comment-item {
   width: 100%;
-  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  background: linear-gradient(180deg, #ffffff, var(--bg-main));
   border-radius: 18px;
   padding: 14px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -352,7 +350,7 @@
   justify-content: center;
   font-weight: 800;
   font-size: 14px;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+  box-shadow: var(--shadow-sm);
   flex-shrink: 0;
 }
 
@@ -366,18 +364,18 @@
 .comment-user {
   font-size: 14px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .comment-time {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-secondary);
   line-height: 1.4;
   word-break: break-word;
 }
 
 .comment-edited-tag {
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .comment-body-row {
@@ -395,7 +393,7 @@
   cursor: pointer;
   font-size: 14px;
   line-height: 1.7;
-  color: #1e293b;
+  color: var(--text-main);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -420,7 +418,7 @@
 .comment-edit-textarea,
 .comment-textarea {
   width: 100%;
-  border: 1px solid #dbe1ea;
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 12px 14px;
   font-size: 14px;
@@ -430,12 +428,13 @@
   box-sizing: border-box;
   outline: none;
   background: #ffffff;
+  color: var(--text-main);
 }
 
 .comment-edit-textarea:focus,
 .comment-textarea:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .comment-actions,
@@ -467,22 +466,24 @@
   transition: all 0.18s ease;
 }
 
-.comment-action-btn {
-  background: #eef2f7;
-  color: #334155;
+.comment-action-btn,
+.comment-secondary-btn {
+  background: var(--soft-beige-light);
+  color: var(--primary);
 }
 
-.comment-action-btn:hover {
-  background: #e2e8f0;
+.comment-action-btn:hover,
+.comment-secondary-btn:hover {
+  background: rgba(215, 205, 173, 0.35);
 }
 
 .comment-action-btn.danger {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: var(--danger);
+  background: rgba(215, 101, 90, 0.12);
 }
 
 .comment-action-btn.danger:hover {
-  background: #fecaca;
+  background: rgba(215, 101, 90, 0.2);
 }
 
 .like-btn {
@@ -492,12 +493,12 @@
 }
 
 .like-btn.is-liked {
-  color: #e11d48;
-  background: #ffe4e6;
+  color: var(--danger);
+  background: rgba(215, 101, 90, 0.12);
 }
 
 .like-btn.is-liked:hover {
-  background: #fecdd3;
+  background: rgba(215, 101, 90, 0.2);
 }
 
 .comment-action-icon {
@@ -505,18 +506,9 @@
   line-height: 1;
 }
 
-.comment-secondary-btn {
-  background: #eef2f7;
-  color: #334155;
-}
-
-.comment-secondary-btn:hover {
-  background: #e2e8f0;
-}
-
 .comment-primary-btn,
 .comment-send-btn {
-  background: linear-gradient(135deg, #111827, #1f2937);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: #ffffff;
 }
 
@@ -537,8 +529,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--soft-beige-light);
+  border: 1px solid var(--border-color);
   border-radius: 18px;
   padding: 14px;
   box-sizing: border-box;
@@ -563,17 +555,17 @@
 }
 
 .confirm-modal-cancel {
-  background: #eef2f7;
-  color: #334155;
+  background: var(--soft-beige-light);
+  color: var(--primary);
 }
 
 .confirm-modal-confirm {
-  background: linear-gradient(135deg, #111827, #1f2937);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: #fff;
 }
 
 .confirm-modal-confirm--danger {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  background: linear-gradient(135deg, var(--danger), var(--danger-hover));
 }
 
 .confirm-modal-cancel:hover,
@@ -599,7 +591,7 @@
 }
 
 .edit-task-modal-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: rgba(54, 89, 90, 0.22);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
@@ -619,6 +611,7 @@
     max-height: none;
     padding: 0;
   }
+
   .confirm-modal-header h3 {
     font-size: 24px;
   }

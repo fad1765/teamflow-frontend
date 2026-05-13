@@ -1,9 +1,9 @@
 .create-project-modal {
   width: min(460px, 92vw);
-  background: #fff;
+  background: var(--bg-card);
   border-radius: 24px;
-  border: 1px solid #e8edf5;
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.2);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
   padding: 24px;
   box-sizing: border-box;
 }
@@ -20,16 +20,20 @@
   margin: 0;
   font-size: 28px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .create-project-close {
   border: none;
   background: transparent;
   font-size: 28px;
-  color: #64748b;
+  color: var(--text-secondary);
   cursor: pointer;
   line-height: 1;
+}
+
+.create-project-close:hover {
+  color: var(--primary);
 }
 
 .create-project-form {
@@ -39,27 +43,41 @@
 }
 
 .create-project-form input,
-.create-project-form select {
+.create-project-form select,
+.create-project-form textarea {
   width: 100%;
-  min-height: 52px;
   padding: 12px 14px;
-  border: 1px solid #dbe1ea;
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   background: #fff;
   outline: none;
   font-size: 14px;
   box-sizing: border-box;
+  color: var(--text-main);
+}
+
+.create-project-form input,
+.create-project-form select {
+  min-height: 52px;
+}
+
+.create-project-form textarea {
+  min-height: 110px;
+  padding: 14px 16px;
+  font-size: 15px;
+  resize: vertical;
 }
 
 .create-project-form input:focus,
-.create-project-form select:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+.create-project-form select:focus,
+.create-project-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
 }
 
 .create-project-error {
   margin: 0;
-  color: #dc2626;
+  color: var(--danger);
   font-size: 14px;
 }
 
@@ -81,13 +99,18 @@
 }
 
 .create-project-cancel {
-  background: #eef2f7;
-  color: #334155;
+  background: var(--soft-beige-light);
+  color: var(--primary);
 }
 
 .create-project-confirm {
-  background: linear-gradient(135deg, #111827, #1f2937);
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
   color: #fff;
+}
+
+.create-project-cancel:hover,
+.create-project-confirm:hover {
+  opacity: 0.92;
 }
 
 @media (max-width: 768px) {
@@ -104,22 +127,4 @@
   .create-project-confirm {
     width: 100%;
   }
-}
-
-.create-project-form textarea {
-  width: 100%;
-  min-height: 110px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid #dbe1ea;
-  background: #fff;
-  font-size: 15px;
-  outline: none;
-  resize: vertical;
-  box-sizing: border-box;
-}
-
-.create-project-form textarea:focus {
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
 }
