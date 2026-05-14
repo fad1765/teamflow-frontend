@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState  } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import CreateProjectModal from "../components/CreateProjectModal";
@@ -26,7 +26,10 @@ export default function Projects() {
   const [acceptTarget, setAcceptTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
-  const fetchProjectsPage = async () => {
+useEffect(() => {
+  let ignore = false;
+
+  const fetchData = async () => {
     try {
       setLoading(true);
       setError("");
@@ -36,29 +39,32 @@ export default function Projects() {
         api.get("/invitations/my"),
       ]);
 
-      const projectList = Array.isArray(projectsRes.data)
-        ? projectsRes.data
-        : [];
+      if (ignore) return;
 
-      setProjects(projectList);
+      setProjects(Array.isArray(projectsRes.data) ? projectsRes.data : []);
       setInvitations(
         Array.isArray(invitationsRes.data) ? invitationsRes.data : [],
       );
     } catch (err) {
       console.error(err);
-      setError(
-        language === "zh"
-          ? "取得專案或邀請失敗"
-          : "Failed to load projects or invitations",
-      );
+      if (!ignore) {
+        setError(
+          language === "zh"
+            ? "取得專案或邀請失敗"
+            : "Failed to load projects or invitations",
+        );
+      }
     } finally {
-      setLoading(false);
+      if (!ignore) setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchProjectsPage();
-  }, []);
+  fetchData();
+
+  return () => {
+    ignore = true;
+  };
+}, [language]);
 
   const openCreateModal = (type = "personal") => {
     setCreateType(type);
@@ -341,11 +347,6 @@ export default function Projects() {
                                 : "Personal Project"}
                           </span>
                         </div>
-
-                        <p className="project-card-meta">
-                          {language === "zh" ? "專案 ID：" : "Project ID: "}
-                          {project.id}
-                        </p>
 
                         <p className="project-card-description">
                           {project.description?.trim()

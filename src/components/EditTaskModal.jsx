@@ -585,7 +585,7 @@ export default function EditTaskModal({
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder={
                     language === "zh"
-                      ? "寫下目前進度、卡住的地方，或提醒事項..."
+                      ? "寫下目前進度或提醒事項..."
                       : "Write progress, blockers, or reminders..."
                   }
                   rows={3}
