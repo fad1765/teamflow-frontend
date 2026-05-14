@@ -114,6 +114,9 @@ PostgreSQL
 ### Timeline
 ![timeline](./screenshots/Timeline.png)
 
+### EditTask
+![edit](./screenshots/Edit.png)
+
 ## 未來規劃
 
 - WebSocket 即時同步
